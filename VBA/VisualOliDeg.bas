@@ -1,0 +1,628 @@
+Attribute VB_Name = "VisualOliDeg"
+' see: http://msdn.microsoft.com/en-us/library/office/ff196650%28v=office.15%29.aspx
+' and: http://blogs.office.com/2005/10/14/conditional-formatting-using-vba-some-examples/
+'    : http://www.mrexcel.com/forum/excel-questions/522196-conditional-formatting-excel-visual-basic-applications.html
+
+Private Sub Clear_Click()
+    Call VisualOliDeg.Clear
+End Sub
+
+Private Sub toList_Click()
+    Call VisualOliDeg.toList
+End Sub
+
+Private Sub Worst_Click()
+    Call VisualOliDeg.Worst
+End Sub
+
+Private Sub cbt_ExportSeq_Click()
+    Call VisualOliDeg.ExportFASTAfile
+End Sub
+
+Private Sub cbt_Set_FASTAfile_Click()
+    Call VisualOliDeg.SetFASTAfile
+End Sub
+
+Private Sub cbt_AddSeq_Click()
+    Call VisualOliDeg.AddSeq_Click
+End Sub
+
+Private Sub Reset_Click()
+    Call VisualOliDeg.ResetAll_Click
+End Sub
+
+
+
+
+
+Sub AddSeq_Click()
+    Application.ScreenUpdating = False
+    Excel.Application.Calculation = xlCalculationManual
+    
+    Call AddSeqFromFASTAfile
+    
+    Excel.Calculate
+    Application.ScreenUpdating = True
+    
+    Range("ClassHeaders").Offset(1, 0).Select
+    Range("ClassHeaders").Offset(1, 0).Show
+    'Range("Align.Data").Offset(1, 0).Activate
+    'Range("Align.Data").Offset(1, 0).Show
+    'Range("Gr").Select
+    
+
+End Sub
+
+
+
+Sub SetFASTAfile()
+    file = Excel.Application.GetOpenFilename("FASTA files (*.fasta;*.fas;*seq;*.txt),*.fasta;*.fas;*seq;*.txt, All Files (*.*),*.* ", , "Select yours aligned sequences in FASTA format")
+    If file <> False Then Range("FastaFileNAme") = file
+End Sub
+
+
+Sub AddSeqFromFASTAfile()
+'Load a region of each seq from the FASTA file to separated rows in sheet Import
+    
+    Dim LoadSeqFrom   As Long
+        LoadSeqFrom = Range("LoadSeqFrom")
+        If LoadSeqFrom < 1 Then
+           LoadSeqFrom = 1
+           Range("LoadSeqFrom") = LoadSeqFrom
+        End If
+    Dim LoadSeqTo    As Long
+        LoadSeqTo = Range("LoadSeqTo")
+    Dim MaxSeqLength As Long
+        MaxSeqLength = Range("MaxSeqLength")
+    If LoadSeqTo > 0 And LoadSeqTo < MaxSeqLength Then MaxSeqLength = LoadSeqTo
+    
+    Dim Descript   As Range
+    Set Descript = Range("Description") '        Table HEAD for seq: Descriptions
+    
+    Dim nrSeqDesc As String
+        nrSeqDesc = "SeqDescriptions"
+    Dim rSeqDesc   As Range
+    Set rSeqDesc = Range(nrSeqDesc)        '    Todos los datos de la tabla
+    Dim ClassHeaders As Range
+    Set ClassHeaders = Range("ClassHeaders")
+    Dim NumClass    As Long
+        NumClass = ClassHeaders.Columns.Count      ' 4  !
+    
+    Dim NameCol As Long
+        NameCol = 1
+    Dim FastaNames As Range
+    Set FastaNames = rSeqDesc.Columns(NameCol) ' Columna con los nombres de sec.
+    
+    Dim SeqCol As Long
+        SeqCol = 2
+    Dim Seq As Range
+    Set Seq = rSeqDesc.Columns(SeqCol)  '        Columna de sec.
+    
+    Dim NtImpotedCol As Long
+        NtImpotedCol = 8
+    Dim DescCol As Long   ' Class1Col As Long,
+        DescCol = 7
+    
+                                                 'Set VisODegWB = Excel.Application.ActiveWorkbook '     ----- ??
+    Dim NofSeq As Long
+        NofSeq = 0
+    Dim Nt  As Long
+        Nt = 0
+    Dim maxNt As Long
+        maxNt = 0
+    
+    Dim L    As Long
+    Dim ci   As Long, cf As Long
+    Dim p1   As Long, p2 As Long
+    Dim clas As Long
+    
+    Dim eqCell As Range
+    
+    
+    Dim Line   As String
+    Dim Class  As String
+    Dim ClassH As String
+    
+    FastaFile = FreeFile '                    genera el siguiente # disponible para ID de file
+    Open Range("FastaFileNAme") For Input As #FastaFile
+    
+    Do While Not EOF(FastaFile)
+      Input #FastaFile, Line
+      Line = Trim(Line) '                 ---> Hace falta?
+      If (Line <> "") Then   ' 11                  Ignora lineas en blanco
+      
+        If (Line Like ">*") Then '  10   New seq. Example: >EU303182.Apoi Grupo:TB Clas:RioBrVG Especie:Apoi Lineage:
+            Line = LTrim(Mid$(Line, 2))       '  Erase >  Mid(string, start[, length])   start - index 1-based
+            NofSeq = NofSeq + 1
+            If NofSeq = 1 Then rSeqDesc.ClearContents: ClassHeaders.ClearContents
+            Nt = 0
+            
+            Dim name As String
+            p2 = InStr(Line, " ")         'p2- position of the first space, 0 if no space, tentatively after name
+            If p2 = 0 Then '   == 0
+              name = Line
+              Line = ""
+              p1 = 0
+            Else: '                           Contiene algo mas que el nombre
+              name = Left$(Line, p2 - 1)
+              Line = LTrim(Mid$(Line, p2))
+              p1 = InStr(Line, ":")         'p1- position of the first :, tentatively after first class
+            End If
+              rSeqDesc(NofSeq, NameCol) = name
+            
+            Dim curClass As Long
+            curClass = 0
+            Do While p1 > 0 And curClass < NumClass '      Contiene al menos un level: class1   ----> restaurar en Header o agragar ERROR
+                curClass = curClass + 1             '      like Grupo:TB
+                ClassH = RTrim(Left$(Line, p1 - 1)) '   class name, to find or set the class header
+                Line = Mid$(Line, p1 + 1)
+                
+                p2 = InStr(Line, " ")  '          Contain more classes ?
+                If p2 = 0 Then '7
+                  Class = Line
+                  Line = ""
+                  p1 = 0
+                Else: ' 7                         Contain more classes
+                  Class = Left$(Line, p2 - 1)
+                  Line = LTrim(Mid$(Line, p2))
+                  p1 = InStr(Line, ":")
+                End If '7
+                
+                If NofSeq = 1 Then             '  8   La primera seq es la que pone los Class headers.
+                  ClassHeaders(, curClass) = ClassH
+                  ClassHeaders(NofSeq + 1, curClass) = Class
+                Else             '   8
+                  Dim i     As Long
+                  Dim found As Boolean
+                  found = False
+                  For i = 1 To NumClass    '         busco classH en los headesrs.
+                    If ClassH = ClassHeaders(, i) Then
+                      If ClassH <> "" Or i >= curClass Then  ' si lo encontro o si es un Header en blanco y no hemos usado esa pos
+                        found = True
+                        curClass = i
+                        ClassHeaders(NofSeq + 1, curClass) = Class
+                        Exit For
+                      End If
+                    End If
+                  Next i
+                  If Not found Then
+                    If ClassH = "" Then
+                        ClassHeaders(NofSeq + 1, curClass) = Class
+                    Else
+                        rSeqDesc(NofSeq, DescCol) = rSeqDesc(NofSeq, DescCol) & ClassH & ":" & Class & " "
+                    End If
+                  End If
+                End If   '8
+            Loop
+            rSeqDesc(NofSeq, DescCol) = rSeqDesc(NofSeq, DescCol) & Line
+            Set SeqCell = Seq.Rows(NofSeq)
+          SeqCell.ClearContents
+        ElseIf MaxSeqLength > Nt Then '10
+            L = Len(Line)
+            ci = LoadSeqFrom - Nt
+            If ci < 1 Then ' b
+                ci = 1
+            ElseIf ci > L Then 'b
+                ci = L
+            End If 'b
+            cf = MaxSeqLength - Nt
+            If cf < 0 Then 'a
+                cf = 0
+            ElseIf cf > L Then 'a
+                cf = L
+            End If 'a
+            
+            SeqCell.Value = SeqCell.Value + Mid(Line, ci, cf - ci + 1)
+            Nt = Nt + cf
+            If Nt > maxNt Then maxNt = Nt
+        End If '10
+        rSeqDesc(NofSeq, NtImpotedCol) = Nt
+        
+     End If '11  -->  If (Line <> "") Then   ' 11                  Ignora lineas en blanco
+    Loop
+    Close #FastaFile
+    Range("NoSeq") = NofSeq
+    maxNt = maxNt - LoadSeqFrom + 1
+    Range("NoNt") = maxNt
+    
+    
+    If NofSeq = 0 Then NofSeq = 1  'Para que siempre quede al menos la primera Row para poderla copiar
+    
+    
+    Call AdjustColHrow("Align.primer_mark", maxNt, Clear:=True)
+    Excel.Range("ActivPrim").ClearContents
+    Call AdjustRowHcol("Match.CountErr", NofSeq)
+    
+    Call AdjustRange("Align.Data", maxNt, NofSeq)
+    Call AdjustRange("Match.Data", maxNt, NofSeq)
+
+   
+ If rSeqDesc.Rows.Count > NofSeq Then
+   Range(rSeqDesc.Rows(NofSeq + 1), rSeqDesc.Rows(rSeqDesc.Rows.Count)).EntireRow.Delete
+ End If
+ 
+ Set rSeqDesc = rSeqDesc.Resize(NofSeq)
+    
+ rSeqDesc.Rows(1).Copy
+ rSeqDesc.PasteSpecial (xlPasteFormats)
+        
+ Excel.Names.Add nrSeqDesc, rSeqDesc
+ 'Range("SeqName").Offset(1, 0).sc
+ 
+ Excel.Application.Calculation = xlCalculationAutomatic
+ 
+
+End Sub
+
+
+Sub AdjustRowHcol(ColName As String, ByVal numR As Long, Optional formula, Optional Clear = False)
+    
+ If numR <= 0 Then numR = 1    'Para que siempre quede al menos la primera Row para poderla copiar
+
+ With Excel.Range(ColName)
+   Excel.ThisWorkbook.Names.Add ColName, .Resize(, numR)
+   If Clear <> False Then
+        .Rows(1).ClearContents
+   Else
+   If Not IsMissing(formula) Then 'If formula <> "none" Then '
+        .Rows(1).formula = formula
+     End If
+   End If
+      
+ End With
+End Sub
+
+Sub AdjustColHrow(RowName As String, ByVal numC As Long, Optional formula = "none", Optional Clear = False)
+
+    
+ If numC <= 0 Then numC = 1    'Para que siempre quede al menos la primera col para poderla copiar
+
+ With Excel.Range(RowName)
+   Excel.ThisWorkbook.Names.Add RowName, .Resize(, numC)          'Excel.Range(.Columns(1), .Columns(numC))
+   If Clear <> False Then
+        .Columns(1).ClearContents
+   Else
+     If formula <> "none" Then
+        .Columns(1).formula = formula
+     End If
+   End If
+      
+ End With
+End Sub
+
+
+
+Sub AdjustRange(RangeName As String, ByVal numCols As Long, ByVal numRows As Long)    ' AdjustRange("Align.ColsAll", maxNt, NofSeq)
+
+    If numRows <= 0 Then numRows = 1  'Para que siempre quede al menos la primera Row para poderla copiar
+    If numCols <= 0 Then numCols = 1  'Para que siempre quede al menos la primera Row para poderla copiar
+ 
+ Dim Data As Range
+ Set Data = Excel.Range(RangeName)
+ 
+ If Data.Rows.Count > numRows Then
+   Excel.Range(Data.Rows(numRows + 1), Data.Rows(Data.Rows.Count)).EntireRow.Delete
+ End If
+ If Data.Columns.Count > numCols Then
+   Excel.Range(Data.Columns(numCols + 1), Data.Columns(Data.Columns.Count)).EntireColumn.Delete
+ End If
+ 
+ Set Data = Data.Resize(numRows, numCols)
+ Data(1, 1).Copy
+ Data.PasteSpecial (xlPasteAll)
+ Data.ColumnWidth = Data(1, 1).ColumnWidth
+ Data.RowHeight = Data(1, 1).RowHeight
+ 
+ 
+ With Data.Worksheet
+   Set ColH = .Range(.Cells(1, Data.Column), .Cells(Data.Row - 1, Data.Columns.Count + Data.Column - 1))
+    ColH.Columns(1).Copy
+    ColH.PasteSpecial (xlPasteAll)
+    
+   Set RowH = .Range(.Cells(Data.Row, 1), .Cells(Data.Row + numRows - 1, Data.Column - 1))
+    RowH.Rows(1).Copy
+    RowH.PasteSpecial (xlPasteAll)
+ End With
+ 
+ Excel.ThisWorkbook.Names.Add RangeName, Data
+    
+End Sub
+
+Sub ExportFASTAfile()
+    ExportFileNAme = Excel.Application.GetSaveAsFilename(Range("FastaFileNAme"), "FASTA files (*.fasta;*.fas;*seq;*.txt),*.fasta;*.fas;*seq;*.txt, All Files (*.*),*.* ", , "Export current sequences in FASTA format to a file:")
+    Dim Ident As String, Class As String, Clas1 As String, Clas2 As String, Clas3 As String, Clas4 As String
+    Dim HeadName As Range, rSeqDesc As Range
+    Set HeadName = Range("SeqName")
+    Clas1 = HeadName(1, 3)
+    Clas2 = HeadName(1, 4)
+    Clas3 = HeadName(1, 5)
+    Clas4 = HeadName(1, 6)
+
+    FastaFile = FreeFile
+    Open ExportFileNAme For Output As #FastaFile
+    Set rSeqDesc = Range("SeqDescriptions")
+    For Each Row In rSeqDesc.Rows
+       Ident = ">" & Row.Cells(1, 1) & " "
+       clas = Clas1 & ":" & CStr(Row.Cells(1, 3)) & " "
+       clas = clas & Clas2 & ":" & CStr(Row.Cells(1, 4)) & " "
+       clas = clas & Clas3 & ":" & CStr(Row.Cells(1, 5)) & " "
+       clas = clas & Clas4 & ":" & CStr(Row.Cells(1, 6)) & " "
+       Print #FastaFile, Ident; clas;
+       Print #FastaFile, Row.Cells(1, 7)
+       Print #FastaFile, Row.Cells(1, 2)
+    Next
+    Close #FastaFile
+End Sub
+
+
+Sub toList()
+    Sheets("Oligos").Rows("4:4").Insert Shift:=xlDown, CopyOrigin:=xlFormatFromLeftOrAbove
+    Sheets("Oligos").Rows("1:1").Copy
+    Sheets("Oligos").Rows("4:4").PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+    Sheets("Align").Select
+
+End Sub
+
+
+Sub Worst()
+    Sheets("Align").Columns("F:F").Copy
+    Sheets("Align").Columns("J:J").PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+    Range("OnlyWorst") = True
+End Sub
+
+Sub Clear()
+    Sheets("Align").Columns("J:J").ClearContents
+    Range("OnlyWorst") = False
+End Sub
+
+
+
+
+Sub Tm_Set_Change()
+
+Dim Tmmin As Range
+Set Tmmin = Range("Tm_min").Resize(, Range("NoNt")) '[Align.ColsAll].Rows(6)
+Dim Tmmax As Range
+Set Tmmax = Range("Tm_max").Resize(, Range("NoNt")) ' Range("Align.ColsAll").Rows(7)
+
+   Select Case Range("Tm_choice")
+   
+   Case 1 ' Tm basic
+   
+      Tmmin.FormulaR1C1 = "=64.9+41*(PrimerLen-Match!R12C-16.4)/PrimerLen" ' Match!R12C=max count of AT elimina formula de Tm bas min en Match
+      Tmmax.FormulaR1C1 = "=64.9+41*(Match!R13C-16.4)/PrimerLen" ' Match!R13C=max count of CG elimina formula de Tm bas max en Match
+      '=64.9+41*(PrimerLen-Z(-2)S-16.4)/PrimerLen     ' Formula ori in Match for Tm bas min
+      'Range("Tm_min").FormulaR1C1 = "=Match!R14C"    ' Elimina seleccion de Tm_choice: direct Match!R14C=Tm bas min
+      'Range("Tm_max").FormulaR1C1 = "=Match!R15C"    ' Elimina seleccion de Tm_choice
+      
+   Case 2 ' G calculated by NN
+   
+      Tmmin.FormulaR1C1 = "=(Match!R17C-TaK*Match!R18C)/1000" ' R17C=dH,max  ;  R18C=dS,min
+      Tmmax.FormulaR1C1 = "=(Match!R16C-TaK*Match!R19C)/1000" ' R16C=dH,min  ;  R19C=dS,max
+      'Match!R4C ---  =(Z17S-TaK*Z18S)/1000
+      'Range("Tm_min").FormulaR1C1 = "=Match!R4C"   '  R4C=Suma dGmax
+      'Range("Tm_max").FormulaR1C1 = "=Match!R5C"   '  R5C=Suma dGmin
+      
+   Case 3 ' Tm calculated by NN
+   
+      Tmmin.FormulaR1C1 = "=1000*(Match!R20C-3.4)/(Match!R22C+RlnPC)+Kelv_Salt" 'R20C=Suma dHmin ; R22C=Suma dSmin
+      Tmmax.FormulaR1C1 = "=1000*(Match!R21C-3.4)/(Match!R23C+RlnPC)+Kelv_Salt" 'R21C=Suma dHmax ; R23C=Suma dSmax
+      'R24C==1000*(Z(-4)S-3.4)/(Z(-2)S+RlnPC)+Kelv_Salt  'R20C=Suma dHmin ; R22C=Suma dSmin
+      'R25C==1000*(Z(-4)S-3.4)/(Z(-2)S+RlnPC)+Kelv_Salt 'R20C=Suma dHmin ; R22C=Suma dSmin
+      'Range("Tm_min").FormulaR1C1 = "=Match!R24C" 'R24C =Tm,min NearNeig
+      'Range("Tm_max").FormulaR1C1 = "=Match!R25C" 'R25C =Tm,max NearNeig
+      
+   Case 4 ' I calculated by NN??
+   
+      Tmmin.FormulaR1C1 = "= IF((Match!R17C-TaK*Match!R18C)/1000<G_sat,1,te*EXP((Match!R17C-TaK*Match!R18C)/1000*ro))"   'R4C=
+      Tmmax.FormulaR1C1 = "= IF((Match!R16C-TaK*Match!R19C)/1000<G_sat,1,te*EXP((Match!R16C-TaK*Match!R19C)/1000*ro))"   'R4C=
+      '= WENN(Z4S<G_sat;1;te*EXP(Z4S*ro))
+      '= WENN(Z5S<G_sat;1;te*EXP(Z5S*ro))
+      'Range("Tm_min").FormulaR1C1 = "=Match!R6C"  'R6C=Suma I min
+      'Range("Tm_max").FormulaR1C1 = "=Match!R7C"  'R7C=Suma I max
+      
+   End Select
+End Sub
+
+
+
+
+Sub ResetAll_Click()
+
+End Sub
+
+
+
+
+Function BinAnd(a, b)
+Attribute BinAnd.VB_ProcData.VB_Invoke_Func = " \n14"
+'
+' BinAnd Makro
+'
+BinAnd = a And b
+'
+End Function
+
+
+Function Tm_min_basic_formula() As String
+    Tm_min_basic_formula = "=64.9+41*(PrimerLen-Match!R12C-16.4)/PrimerLen"
+End Function
+
+
+Function Tm_max_basic_formula() As String
+    Tm_max_basic_formula = "=64.9+41*(Match!R13C-16.4)/PrimerLen"
+End Function
+
+
+Function PrimerSeq(ByVal PrimerPosition As Long, ByVal PrimerLen As Long) As String
+
+    Dim primer As Range
+    Set primer = Range("UsedCons").Columns(PrimerPosition).Resize(, PrimerLen)
+    
+    PrimerPosition = PrimerPosition - Range("SeqStart") + 1
+    
+    
+    PrimerSeq = ""
+    For Each base In primer.Cells
+        PrimerSeq = PrimerSeq + base
+    Next
+    
+End Function
+
+
+Function Tm_min_basic(ByVal PrimerPosition As Long, ByVal PrimerLen As Long) As Double
+    
+    Dim GC As Long
+    Dim AT As Long
+    
+    GC = Range("Match.ColH_first").Cells(12, PrimerPosition - Range("SeqStart") + 1) 'Match.sumATmax
+    AT = PrimerLen - GC
+       
+    Tm_min_basic = 64.9 + 41 * (AT - 16.4) / PrimerLen
+End Function
+
+
+Function Tm_max_basic() As Double
+    Dim cMatchAll As Range
+    Set cMatchAll = Range("Match.ColH_first")
+    
+    Dim PrimerLen As Range
+    Set PrimerLen = Range("PrimerLen")
+    
+    Dim currPrimerPosition As Range
+    Set currPrimerPosition = Range("currPrimerPosition")
+    
+    Dim SeqStart As Range
+    Set SeqStart = Range("SeqStart")
+
+    Tm_max_basic = 64.9 + 41 * (cMatchAll(13, currPrimerPosition - SeqStart + 1) - 16.4) / PrimerLen
+End Function
+
+Function Tm_min_NN() As Double
+    Dim cMatchAll As Range
+    Set cMatchAll = Range("Match.ColH_first")
+    
+    Dim RlnPC As Range
+    Set RlnPC = Range("RlnPC")
+    
+    Dim Kelv_Salt As Range
+    Set Kelv_Salt = Range("Kelv_Salt")
+    
+    Dim currPrimerPosition As Range
+    Set currPrimerPosition = Range("currPrimerPosition")
+    
+    Dim SeqStart As Range
+    Set SeqStart = Range("SeqStart")
+    
+    Suma_dHmin = cMatchAll(20, currPrimerPosition - SeqStart + 1)
+    Suma_dSmin = cMatchAll(22, currPrimerPosition - SeqStart + 1)
+
+    Tm_min_NN = 1000 * (Suma_dHmin - 3.4) / (Suma_dSmin + RlnPC) + Kelv_Salt
+    
+End Function
+
+
+Function Tm_max_NN() As Double
+    Dim cMatchAll As Range
+    Set cMatchAll = Range("Match.ColH_first")
+    
+    Dim RlnPC As Range
+    Set RlnPC = Range("RlnPC")
+    
+    Dim Kelv_Salt As Range
+    Set Kelv_Salt = Range("Kelv_Salt")
+    
+    Dim currPrimerPosition As Range
+    Set currPrimerPosition = Range("currPrimerPosition")
+    
+    Dim SeqStart As Range
+    Set SeqStart = Range("SeqStart")
+    'R21C=Suma dHmax ; R23C=Suma dSmax
+    Suma_dHmax = cMatchAll(21, currPrimerPosition - SeqStart + 1)
+    Suma_dSmax = cMatchAll(23, currPrimerPosition - SeqStart + 1)
+
+    Tm_max_NN = 1000 * (Suma_dHmax - 3.4) / (Suma_dSmax + RlnPC) + Kelv_Salt
+End Function
+
+
+
+
+
+
+
+Private Sub LoadSeq2cellsFromFASTAfile()
+'Load seq from FASTA file direct to separated cells. Not in Use.
+
+    Set VisODegWB = Excel.Application.ActiveWorkbook
+    Set FastaName = Range("FastaNames")
+    Set Seq = Range("Sequences")
+
+    FastaFile = FreeFile
+    
+    Open Range("FastaFileNAme") For Input As #FastaFile
+    Dim Nt, NofSeq, MaxSeqLength, LoadSeqFrom, LoadSeqTo, L As Long
+    NofSeq = 0
+    Nt = 1
+    MaxSeqLength = Range("MaxSeqLength")
+    LoadSeqFrom = Range("LoadSeqFrom")
+    LoadSeqTo = Range("LoadSeqTo")
+    If LoadSeqTo > 0 And LoadSeqTo < MaxSeqLength Then MaxSeqLength = LoadSeqTo
+    
+    Dim Line As String
+    
+    Do While Not EOF(FastaFile)
+        Input #FastaFile, Line
+        If (Line Like ">*") Then
+            NofSeq = NofSeq + 1
+            Nt = 1
+            FastaName.Offset(NofSeq, 0) = Mid(Line, 2)
+        Else
+            L = Len(Line)
+            For i = 1 To L
+                If Nt > MaxSeqLength Then Exit For
+                If Nt >= LoadSeqFrom Then Seq.Offset(NofSeq, Nt) = Mid(Line, i, 1)
+                Nt = Nt + 1
+            Next i
+                
+        End If
+    
+    Loop
+
+    Close #FastaFile
+ End Sub
+ 
+ 
+ Private Sub LoadFASTAfile()
+ 'Load FASTA file direct to a new Workbook, and then parse the sequences. Not in Use.
+ 
+Excel.Application.Workbooks.OpenText (Excel.Application.Range("FastaFileNAme"))
+
+    Set FastaWB = Excel.Application.ActiveWorkbook
+    Set FastaSh = Excel.Application.ActiveSheet
+    Set FastaSeq = FastaSh.Cells(1, 3)
+    Set FastaCol = FastaSh.Columns("A:A")
+    FastaCol.AutoFit
+    
+    
+    For Each c In FastaCol.Cells
+    
+        If (c Like ">*") Then
+                NofSeq = NofSeq + 1
+                NoBlankLn = 0
+                Nt = 0
+                FastaName.Cells(NofSeq, 1) = Mid(c, 2)
+        ElseIf (c = "") Then
+            NoBlankLn = NoBlankLn + 1
+            If NoBlankLn <= Range("MaxBlank") Then Exit For
+        End If
+ '       set l=           parse the seq   !!!!
+        NofL = NofL + 1
+       
+    Next c
+    
+       
+    Range("NoSeq") = NofSeq
+    
+End Sub
+
+
