@@ -74,7 +74,8 @@ Sub AddSeqFromFASTAfile()
         LoadSeqTo = Range("LoadSeqTo")
     Dim MaxSeqLength As Long
         MaxSeqLength = Range("MaxSeqLength")
-    If LoadSeqTo > 0 And LoadSeqTo < MaxSeqLength Then MaxSeqLength = LoadSeqTo
+        
+    If LoadSeqTo <= 0 Or LoadSeqTo > LoadSeqFrom + MaxSeqLength - 1 Then LoadSeqTo = LoadSeqFrom + MaxSeqLength - 1
     
     Dim Descript   As Range
     Set Descript = Range("Description") '        Table HEAD for seq: Descriptions
@@ -106,9 +107,9 @@ Sub AddSeqFromFASTAfile()
                                                  'Set VisODegWB = Excel.Application.ActiveWorkbook '     ----- ??
     Dim NofSeq As Long
         NofSeq = 0
-    Dim Nt  As Long
+    Dim Nt  As Long             ' The running nt in the current seq -pos del nt ya leido
         Nt = 0
-    Dim maxNt As Long
+    Dim maxNt As Long           ' the largest seq read until now
         maxNt = 0
     
     Dim L    As Long
@@ -131,7 +132,11 @@ Sub AddSeqFromFASTAfile()
       Line = Trim(Line) '                 ---> Hace falta?
       If (Line <> "") Then   ' 11                  Ignora lineas en blanco
       
-        If (Line Like ">*") Then '  10   New seq. Example: >EU303182.Apoi Grupo:TB Clas:RioBrVG Especie:Apoi Lineage:
+        If (Line Like ">*") Then        '  10
+        
+        '   New seq. Example: >EU303182.Apoi Grupo:TB Clas:RioBrVG Especie:Apoi Lineage:
+        '            parse name, description and possible classifications
+        
             Line = LTrim(Mid$(Line, 2))       '  Erase >  Mid(string, start[, length])   start - index 1-based
             NofSeq = NofSeq + 1
             If NofSeq = 1 Then rSeqDesc.ClearContents: ClassHeaders.ClearContents
@@ -197,33 +202,43 @@ Sub AddSeqFromFASTAfile()
             rSeqDesc(NofSeq, DescCol) = rSeqDesc(NofSeq, DescCol) & Line
             Set SeqCell = Seq.Rows(NofSeq)
           SeqCell.ClearContents
-        ElseIf MaxSeqLength > Nt Then '10
+          
+          
+          '   Parse the nt seq.
+          
+          
+        ElseIf LoadSeqTo > Nt Then  '10
             L = Len(Line)
             ci = LoadSeqFrom - Nt
             If ci < 1 Then ' b
                 ci = 1
             ElseIf ci > L Then 'b
-                ci = L
+                ci = L + 1
             End If 'b
-            cf = MaxSeqLength - Nt
-            If cf < 0 Then 'a
+            cf = LoadSeqTo - Nt
+            If cf < 1 Then 'a
                 cf = 0
             ElseIf cf > L Then 'a
                 cf = L
             End If 'a
             
-            SeqCell.Value = SeqCell.Value + Mid(Line, ci, cf - ci + 1)
+            L = cf - ci + 1
+            SeqCell.Value = SeqCell.Value + Mid(Line, ci, L)
+            
             Nt = Nt + cf
             If Nt > maxNt Then maxNt = Nt
+            
+            rSeqDesc(NofSeq, NtImpotedCol) = Nt - LoadSeqFrom + 1 ' wirte the actual number of nt readed (well, counting all sort of gaps)
         End If '10
-        rSeqDesc(NofSeq, NtImpotedCol) = Nt
+        
         
      End If '11  -->  If (Line <> "") Then   ' 11                  Ignora lineas en blanco
     Loop
     Close #FastaFile
+    
     Range("NoSeq") = NofSeq
     maxNt = maxNt - LoadSeqFrom + 1
-    Range("NoNt") = maxNt
+    Range("NoNt") = maxNt '- LoadSeqFrom + 1
     
     
     If NofSeq = 0 Then NofSeq = 1  'Para que siempre quede al menos la primera Row para poderla copiar
