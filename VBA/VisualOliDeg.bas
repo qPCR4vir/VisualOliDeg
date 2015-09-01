@@ -275,7 +275,7 @@ Sub AdjustRowHcol(ColName As String, ByVal numR As Long, Optional formula, Optio
  If numR <= 0 Then numR = 1    'Para que siempre quede al menos la primera Row para poderla copiar
 
  With Excel.Range(ColName)
-   Excel.ThisWorkbook.Names.Add ColName, .Resize(, numR)
+   Excel.ThisWorkbook.Names.Add ColName, .Resize(numR)
    If Clear <> False Then
         .Rows(1).ClearContents
    Else
