@@ -31,6 +31,10 @@ Private Sub Reset_Click()
     Call VisualOliDeg.ResetAll_Click
 End Sub
 
+Private Sub Tm_CBox_Change()
+    Call VisualOliDeg.Tm_Set_Change
+End Sub
+
 
 
 
