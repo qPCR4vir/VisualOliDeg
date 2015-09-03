@@ -3,6 +3,9 @@ Attribute VB_Name = "VisualOliDeg"
 ' and: http://blogs.office.com/2005/10/14/conditional-formatting-using-vba-some-examples/
 '    : http://www.mrexcel.com/forum/excel-questions/522196-conditional-formatting-excel-visual-basic-applications.html
 
+Option Explicit
+
+
 Private Sub Clear_Click()
     Call VisualOliDeg.Clear
 End Sub
@@ -60,6 +63,7 @@ End Sub
 
 
 Sub SetFASTAfile()
+    Dim file
     file = Excel.Application.GetOpenFilename("FASTA files (*.fasta;*.fas;*seq;*.txt),*.fasta;*.fas;*seq;*.txt, All Files (*.*),*.* ", , "Select yours aligned sequences in FASTA format")
     If file <> False Then Range("FastaFileNAme") = file
 End Sub
@@ -127,7 +131,9 @@ Sub AddSeqFromFASTAfile()
     Dim Line   As String
     Dim Class  As String
     Dim ClassH As String
+    Dim SeqCell As Range
     
+    Dim FastaFile As Integer
     FastaFile = FreeFile '                    genera el siguiente # disponible para ID de file
     Open Range("FastaFileNAme") For Input As #FastaFile
     
@@ -332,7 +338,8 @@ Sub AdjustRange(RangeName As String, ByVal numCols As Long, ByVal numRows As Lon
  Data.ColumnWidth = Data(1, 1).ColumnWidth
  Data.RowHeight = Data(1, 1).RowHeight
  
- 
+ Dim ColH As Range
+ Dim RowH As Range
  With Data.Worksheet
    Set ColH = .Range(.Cells(1, Data.Column), .Cells(Data.Row - 1, Data.Columns.Count + Data.Column - 1))
     ColH.Columns(1).Copy
@@ -482,6 +489,7 @@ Function PrimerSeq(ByVal PrimerPosition As Long, ByVal PrimerLen As Long) As Str
     
     
     PrimerSeq = ""
+    Dim base As Range
     For Each base In primer.Cells
         PrimerSeq = PrimerSeq + base
     Next
@@ -530,9 +538,10 @@ Function Tm_min_NN() As Double
     Dim currPrimerPosition As Range
     Set currPrimerPosition = Range("currPrimerPosition")
     
-    Dim SeqStart As Range
-    Set SeqStart = Range("SeqStart")
+    Dim SeqStart As Long
+    SeqStart = Range("SeqStart")
     
+    Dim Suma_dHmin As Double, Suma_dSmin As Double
     Suma_dHmin = cMatchAll(20, currPrimerPosition - SeqStart + 1)
     Suma_dSmin = cMatchAll(22, currPrimerPosition - SeqStart + 1)
 
@@ -554,8 +563,10 @@ Function Tm_max_NN() As Double
     Dim currPrimerPosition As Range
     Set currPrimerPosition = Range("currPrimerPosition")
     
-    Dim SeqStart As Range
-    Set SeqStart = Range("SeqStart")
+    Dim SeqStart As Long
+    SeqStart = Range("SeqStart")
+    
+    Dim Suma_dHmax As Double, Suma_dSmax As Double
     'R21C=Suma dHmax ; R23C=Suma dSmax
     Suma_dHmax = cMatchAll(21, currPrimerPosition - SeqStart + 1)
     Suma_dSmax = cMatchAll(23, currPrimerPosition - SeqStart + 1)
