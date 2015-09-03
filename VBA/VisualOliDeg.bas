@@ -129,6 +129,7 @@ Sub AddSeqFromFASTAfile()
     
     
     Dim Line   As String
+    Dim sequence As String
     Dim Class  As String
     Dim ClassH As String
     Dim SeqCell As Range
@@ -147,9 +148,20 @@ Sub AddSeqFromFASTAfile()
         '   New seq. Example: >EU303182.Apoi Grupo:TB Clas:RioBrVG Especie:Apoi Lineage:
         '            parse name, description and possible classifications
         
-            Line = LTrim(Mid$(Line, 2))       '  Erase >  Mid(string, start[, length])   start - index 1-based
             NofSeq = NofSeq + 1
-            If NofSeq = 1 Then rSeqDesc.ClearContents: ClassHeaders.ClearContents
+            
+            If NofSeq = 1 Then
+                rSeqDesc.ClearContents:
+                ClassHeaders.ClearContents
+            Else
+                SeqCell.Value = sequence
+                If Nt > maxNt Then maxNt = Nt
+                rSeqDesc(NofSeq, NtImpotedCol) = Nt - LoadSeqFrom + 1 ' write the actual number of nt readed (well, counting all sort of gaps)
+            End If
+            
+            Set SeqCell = Seq.Rows(NofSeq)
+            sequence = ""
+            Line = LTrim(Mid$(Line, 2))       '  Erase >  Mid(string, start[, length])   start - index 1-based
             Nt = 0
             
             Dim name As String
@@ -210,8 +222,6 @@ Sub AddSeqFromFASTAfile()
                 End If   '8
             Loop
             rSeqDesc(NofSeq, DescCol) = rSeqDesc(NofSeq, DescCol) & Line
-            Set SeqCell = Seq.Rows(NofSeq)
-          SeqCell.ClearContents
           
           
           '   Parse the nt seq.
@@ -219,12 +229,14 @@ Sub AddSeqFromFASTAfile()
           
         ElseIf LoadSeqTo > Nt Then  '10
             L = Len(Line)
+            
             ci = LoadSeqFrom - Nt
             If ci < 1 Then ' b
                 ci = 1
             ElseIf ci > L Then 'b
                 ci = L + 1
             End If 'b
+            
             cf = LoadSeqTo - Nt
             If cf < 1 Then 'a
                 cf = 0
@@ -233,12 +245,10 @@ Sub AddSeqFromFASTAfile()
             End If 'a
             
             L = cf - ci + 1
-            SeqCell.Value = SeqCell.Value + Mid(Line, ci, L)
+            If L > 0 Then sequence = sequence + Mid(Line, ci, L)
             
             Nt = Nt + cf
-            If Nt > maxNt Then maxNt = Nt
             
-            rSeqDesc(NofSeq, NtImpotedCol) = Nt - LoadSeqFrom + 1 ' wirte the actual number of nt readed (well, counting all sort of gaps)
         End If '10
         
         
@@ -246,12 +256,18 @@ Sub AddSeqFromFASTAfile()
     Loop
     Close #FastaFile
     
-    Range("NoSeq") = NofSeq
+    If NofSeq < 1 Then
+        MsgBox "No sequences were found and this file is ignored."
+        Return
+    End If
+    
+    SeqCell.Value = sequence
+    If Nt > maxNt Then maxNt = Nt
+    rSeqDesc(NofSeq, NtImpotedCol) = Nt - LoadSeqFrom + 1 ' write the actual number of nt readed (well, counting all sort of gaps)
+    
     maxNt = maxNt - LoadSeqFrom + 1
-    Range("NoNt") = maxNt '- LoadSeqFrom + 1
-    
-    
-    If NofSeq = 0 Then NofSeq = 1  'Para que siempre quede al menos la primera Row para poderla copiar
+    Range("NoSeq") = NofSeq
+    Range("NoNt") = maxNt
     
     
     Call AdjustColHrow("Align.primer_mark", maxNt, Clear:=True)
