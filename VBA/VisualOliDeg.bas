@@ -107,8 +107,8 @@ Sub AddSeqFromFASTAfile()
     Dim Seq As Range
     Set Seq = rSeqDesc.Columns(SeqCol)  '        Columna de sec.
     
-    Dim NtImpotedCol As Long
-        NtImpotedCol = 8
+    Dim NtImportedCol As Long
+        NtImportedCol = 8
     Dim DescCol As Long   ' Class1Col As Long,
         DescCol = 7
     
@@ -148,17 +148,21 @@ Sub AddSeqFromFASTAfile()
         '   New seq. Example: >EU303182.Apoi Grupo:TB Clas:RioBrVG Especie:Apoi Lineage:
         '            parse name, description and possible classifications
         
-            NofSeq = NofSeq + 1
             
-            If NofSeq = 1 Then
+            If NofSeq < 1 Then
                 rSeqDesc.ClearContents:
                 ClassHeaders.ClearContents
             Else
                 SeqCell.Value = sequence
+                If Nt < LoadSeqFrom Then
+                    rSeqDesc(NofSeq, NtImportedCol) = 0
+                Else
+                    rSeqDesc(NofSeq, NtImportedCol) = Nt - LoadSeqFrom + 1 ' write the actual number of nt readed (well, counting all sort of gaps)
                 If Nt > maxNt Then maxNt = Nt
-                rSeqDesc(NofSeq, NtImpotedCol) = Nt - LoadSeqFrom + 1 ' write the actual number of nt readed (well, counting all sort of gaps)
+                End If
             End If
             
+            NofSeq = NofSeq + 1
             Set SeqCell = Seq.Rows(NofSeq)
             sequence = ""
             Line = LTrim(Mid$(Line, 2))       '  Erase >  Mid(string, start[, length])   start - index 1-based
@@ -262,10 +266,21 @@ Sub AddSeqFromFASTAfile()
     End If
     
     SeqCell.Value = sequence
+                If Nt < LoadSeqFrom Then
+                    rSeqDesc(NofSeq, NtImportedCol) = 0
+                Else
+                    rSeqDesc(NofSeq, NtImportedCol) = Nt - LoadSeqFrom + 1 ' write the actual number of nt readed (well, counting all sort of gaps)
     If Nt > maxNt Then maxNt = Nt
-    rSeqDesc(NofSeq, NtImpotedCol) = Nt - LoadSeqFrom + 1 ' write the actual number of nt readed (well, counting all sort of gaps)
+                End If
     
+    If maxNt < 2 Then
+        MsgBox "No sequences which at least 2 nt were found. Revise the sequences and the From/To range."
+        maxNt = 2
+    Else
     maxNt = maxNt - LoadSeqFrom + 1
+    End If
+                
+    
     Range("NoSeq") = NofSeq
     Range("NoNt") = maxNt
     
