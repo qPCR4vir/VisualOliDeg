@@ -1,12 +1,13 @@
 Attribute VB_Name = "SourceControl"
 '   http://stackoverflow.com/questions/131605/best-way-to-do-version-control-for-ms-excel
+'   http://www.pretentiousname.com/excel_extractvba/
 
 Sub CommitToLaptoop()
     CommitVBA ("C:\Prog\VisualOliDeg\VBA\")
 End Sub
 
 Sub CommitToC()
-    CommitVBA ("C:\Prog\VBA\")
+    CommitVBA ("C:\Prog\VisualOliDeg\VBA\")
 End Sub
 
 Sub CommitToDrive() 'dont works

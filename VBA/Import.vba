@@ -13,12 +13,28 @@ End Sub
 
 
 Private Sub cbt_Set_FASTAfile_Click()
-    Call VisualOliDeg.SetFASTAfile
+    Dim file
+    file = Excel.Application.GetOpenFilename("FASTA files (*.fasta;*.fas;*seq;*.txt),*.fasta;*.fas;*seq;*.txt, All Files (*.*),*.* ", , "Select yours aligned sequences in FASTA format")
+    If file <> False Then Range("FastaFileNAme") = file
 End Sub
 
 
 Private Sub cbt_AddSeq_Click()
-    Call VisualOliDeg.AddSeq_Click
+    Application.ScreenUpdating = False
+    Excel.Application.Calculation = xlCalculationManual
+    
+    Call AddSeqFromFASTAfile
+    
+    'Excel.Calculate                 ' comment??
+    Excel.Application.Calculation = xlCalculationAutomatic
+
+    Application.ScreenUpdating = True
+    
+    Range("ClassHeaders").Offset(1, 0).Select
+    Range("ClassHeaders").Offset(1, 0).Show
+    'Range("Align.Data").Offset(1, 0).Activate
+    'Range("Align.Data").Offset(1, 0).Show
+    'Range("Gr").Select
 End Sub
 
 
