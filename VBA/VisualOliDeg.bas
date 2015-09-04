@@ -48,7 +48,9 @@ Sub AddSeq_Click()
     
     Call AddSeqFromFASTAfile
     
-    Excel.Calculate
+    'Excel.Calculate                 ' comment??
+    Excel.Application.Calculation = xlCalculationAutomatic
+
     Application.ScreenUpdating = True
     
     Range("ClassHeaders").Offset(1, 0).Select
@@ -158,7 +160,7 @@ Sub AddSeqFromFASTAfile()
                     rSeqDesc(NofSeq, NtImportedCol) = 0
                 Else
                     rSeqDesc(NofSeq, NtImportedCol) = Nt - LoadSeqFrom + 1 ' write the actual number of nt readed (well, counting all sort of gaps)
-                If Nt > maxNt Then maxNt = Nt
+                    If Nt > maxNt Then maxNt = Nt
                 End If
             End If
             
@@ -264,26 +266,26 @@ Sub AddSeqFromFASTAfile()
         MsgBox "No sequences were found and this file is ignored."
         Return
     End If
-    
-    SeqCell.Value = sequence
+                
+                SeqCell.Value = sequence
                 If Nt < LoadSeqFrom Then
                     rSeqDesc(NofSeq, NtImportedCol) = 0
                 Else
                     rSeqDesc(NofSeq, NtImportedCol) = Nt - LoadSeqFrom + 1 ' write the actual number of nt readed (well, counting all sort of gaps)
-    If Nt > maxNt Then maxNt = Nt
+                    If Nt > maxNt Then maxNt = Nt
                 End If
     
     If maxNt < 2 Then
         MsgBox "No sequences which at least 2 nt were found. Revise the sequences and the From/To range."
         maxNt = 2
     Else
-    maxNt = maxNt - LoadSeqFrom + 1
+        maxNt = maxNt - LoadSeqFrom + 1
     End If
                 
     
     Range("NoSeq") = NofSeq
     Range("NoNt") = maxNt
-    
+   
     
     Call AdjustColHrow("Align.primer_mark", maxNt, Clear:=True)
     Excel.Range("ActivPrim").ClearContents
@@ -304,8 +306,6 @@ Sub AddSeqFromFASTAfile()
         
  Excel.Names.Add nrSeqDesc, rSeqDesc
  'Range("SeqName").Offset(1, 0).sc
- 
- Excel.Application.Calculation = xlCalculationAutomatic
  
 
 End Sub
