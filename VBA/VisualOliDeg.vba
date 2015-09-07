@@ -76,7 +76,7 @@ Sub AddSeqFromFASTAfile()
     Open Range("FastaFileNAme") For Input As #FastaFile
     
     Do While Not EOF(FastaFile)
-      Input #FastaFile, Line
+      Line Input #FastaFile, Line
       Line = Trim(Line) '                 ---> Hace falta?
       If (Line <> "") Then   ' 11                  Ignora lineas en blanco
       
