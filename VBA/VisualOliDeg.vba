@@ -5,6 +5,9 @@ Attribute VB_Name = "VisualOliDeg"
 
 Option Explicit
 
+Private Sub Tm_CBox_Change()
+    Call ThDy.Tm_Set_Change
+End Sub
 
 Sub AddSeqFromFASTAfile()
 'Load a region of each seq from the FASTA file to separated rows in sheet Import

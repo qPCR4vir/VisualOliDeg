@@ -26,7 +26,4 @@ Private Sub Worst_Click()
 End Sub
 
 
-Private Sub Tm_CBox_Change()
-    Call ThDy.Tm_Set_Change
-End Sub
 
