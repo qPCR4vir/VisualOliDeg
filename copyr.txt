@@ -1,9 +1,9 @@
 Copyright (C) 2009-2015, Ariel Vina-Rodriguez ( ariel.rodriguez@fli.bund.de , arielvina@yahoo.es )
 
-This project is part of my PhD Thesis, at INNT-FLI, supervised by Dr. Martin Eiden and Dr. Martin Groushup.
+This project is part of my PhD Thesis, at INNT-FLI, supervised by Dr. Martin Eiden and Dr. Martin Groschup.
  
 autor Ariel Vina-Rodriguez (qPCR4vir)
 2012-2015
 
 If you  use it, please cite:
-Ariel Vina-Rodriguez, Conrad Sachse, Ute Ziegler, Marcus Keller, Martin Eiden and Martin Groushup. 2015. "Detection and classification of Flavivirus by RT-qPCR and DNA microarray developed with VisualOligoDeg". In press.
+Ariel Vina-Rodriguez, Konrad Sachse, Ute Ziegler, Marcus Keller, Martin Eiden and Martin Groschup. 2015. "Detection and classification of Flavivirus by RT-qPCR and DNA microarray developed with VisualOligoDeg". In press.
