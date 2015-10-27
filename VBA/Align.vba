@@ -13,10 +13,18 @@ Private Sub Clear_Click()
 End Sub
 
 Private Sub toList_Click()
-    Sheets("Oligos").Rows("4:4").Insert Shift:=xlDown, CopyOrigin:=xlFormatFromLeftOrAbove
-    Sheets("Oligos").Rows("1:1").Copy
-    Sheets("Oligos").Rows("4:4").PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
-    Sheets("Align").Select
+    
+    If (Range("ActivPrim").Value = "") Or (Range("PrimerLen").Value < 3) Then
+    
+        MsgBox ("First select (type) a valid primer label in cell ActivPrim")
+        
+    Else
+        Sheets("Oligos").Rows("4:4").Insert Shift:=xlDown, CopyOrigin:=xlFormatFromLeftOrAbove
+        Sheets("Oligos").Rows("1:1").Copy
+        Sheets("Oligos").Rows("4:4").PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+        Sheets("Align").Select
+    End If
+    
 End Sub
 
 Private Sub Worst_Click()
