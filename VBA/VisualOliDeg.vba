@@ -221,16 +221,8 @@ Sub AddSeqFromFASTAfile()
     End If
                 
     
-    Range("NoSeq") = NofSeq
-    Range("NoNt") = maxNt
-   
     
-    Call AdjustColHrow("Align.primer_mark", maxNt, Clear:=True)
-    Excel.Range("ActivPrim").ClearContents
-    Call AdjustRowHcol("Match.CountErr", NofSeq)
-    
-    Call AdjustRange("Align.Data", maxNt, NofSeq)
-    Call AdjustRange("Match.Data", maxNt, NofSeq)
+ Call ResetRanges(maxNt, NofSeq)
 
    
  If rSeqDesc.Rows.Count > NofSeq Then
@@ -357,7 +349,32 @@ Sub ResetAll_Click()
 
 End Sub
 
+Sub ResetRanges(ByVal maxNt As Long, ByVal NofSeq As Long)
 
+    Range("NoSeq") = NofSeq
+    Range("NoNt") = maxNt
+   
+
+    Call AdjustColHrow("Align.primer_mark", maxNt, Clear:=True)
+    Excel.Range("ActivPrim").ClearContents
+    Call AdjustRowHcol("Match.CountErr", NofSeq)
+
+
+    'Align.Data(1,1) = WENN(selected;TEIL(seq;pos;1);"")
+    'Align.Data(1,1) = IF(selected;MID(seq;pos;1);"")
+    
+    Call AdjustRange("Align.Data", maxNt, NofSeq) ', "=IF(selected;MID(seq;pos;1);"""")")
+    
+    
+    ' Match.DataBeg =WENN(ODER(Align!M$10=FALSCH;Align!M22=Align!M$9;Align!M22="");"";WENN(Align!M22="-";3;WENN(BinAnd(FINDEN(Align!M22;CodDegElegir)-1          ;M$9);1;2)))
+    ' Match.DataBeg =WENN(ODER(Align!M$10=FALSCH;Align!M22=Align!M$9;Align!M22="");"";WENN(Align!M22="-";3;WENN(BinAnd(INDEX(CodDeg!C;CODE(Align!M22));M$9);1;2)))
+    
+    ' Match.DataBeg =IF(OR(Align!M$10=FALSE;Align!M22=Align!M$9;Align!M22="");"";IF(Align!M22="-";3;IF(BinAnd(FIND(Align!M22;CodDegElegir)-1;M$9);1;2)))
+    ' Match.DataBeg =IF(OR(Align!M$10=FALSE;Align!M22=Align!M$9;Align!M22="");"";IF(Align!M22="-";3;IF(BinAnd(INDEX(CodDeg!C;CODE(Align!M22));M$9);1;2)))
+    
+    Call AdjustRange("Match.Data", maxNt, NofSeq)
+
+End Sub
 
 
 Function BinAnd(a, b)
