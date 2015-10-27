@@ -250,7 +250,7 @@ Sub AdjustRowHcol(ColName As String, ByVal numR As Long, Optional formula, Optio
    If Clear <> False Then
         .Rows(1).ClearContents
    Else
-   If Not IsMissing(formula) Then 'If formula <> "none" Then '
+     If Not IsMissing(formula) Then
         .Rows(1).formula = formula
      End If
    End If
@@ -278,7 +278,7 @@ End Sub
 
 
 
-Sub AdjustRange(RangeName As String, ByVal numCols As Long, ByVal numRows As Long)    ' AdjustRange("Align.ColsAll", maxNt, NofSeq)
+Sub AdjustRange(RangeName As String, ByVal numCols As Long, ByVal numRows As Long, Optional newformula)    ' AdjustRange("Align.ColsAll", maxNt, NofSeq)
 
     If numRows <= 0 Then numRows = 1  'Para que siempre quede al menos la primera Row para poderla copiar
     If numCols <= 0 Then numCols = 1  'Para que siempre quede al menos la primera Row para poderla copiar
@@ -294,10 +294,21 @@ Sub AdjustRange(RangeName As String, ByVal numCols As Long, ByVal numRows As Lon
  End If
  
  Set Data = Data.Resize(numRows, numCols)
- Data(1, 1).Copy
- Data.PasteSpecial (xlPasteAll)
- Data.ColumnWidth = Data(1, 1).ColumnWidth
- Data.RowHeight = Data(1, 1).RowHeight
+ 
+ 'with Data(1, 1)
+ 
+    'If Not IsMissing(newformula) Then
+     '  Data(1, 1).formula = newformula
+    'End If
+       
+     'Data.FormulaR1C1 = "=1"
+     
+     
+    Data(1, 1).Copy
+    Data.PasteSpecial (xlPasteAll)
+    Data.ColumnWidth = Data(1, 1).ColumnWidth
+    Data.RowHeight = Data(1, 1).RowHeight
+    
  
  Dim ColH As Range
  Dim RowH As Range
@@ -358,8 +369,8 @@ Sub ResetRanges(ByVal maxNt As Long, ByVal NofSeq As Long)
     Call AdjustColHrow("Align.primer_mark", maxNt, Clear:=True)
     Excel.Range("ActivPrim").ClearContents
     Call AdjustRowHcol("Match.CountErr", NofSeq)
-
-
+    
+    
     'Align.Data(1,1) = WENN(selected;TEIL(seq;pos;1);"")
     'Align.Data(1,1) = IF(selected;MID(seq;pos;1);"")
     
@@ -381,6 +392,8 @@ Function BinAnd(a, b)
 Attribute BinAnd.VB_ProcData.VB_Invoke_Func = " \n14"
 '
 ' BinAnd Makro
+' to be replaced with BITAND(a,b) directl yon the sheet. Only for 2013 ??
+' https://support.office.com/en-us/article/BITAND-function-8A2BE3D7-91C3-4B48-9517-64548008563A
 '
 BinAnd = a And b
 '

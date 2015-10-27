@@ -1,6 +1,5 @@
 Attribute VB_Name = "CodigoDeg"
-' Match.DataBeg =WENN(ODER(Align!M$10=FALSCH;Align!M35=Align!M$9;Align!M35="");"";WENN(Align!M35="-";3;WENN(BinAnd(FINDEN(Align!M35;CodDegElegir)-1          ;M$9);1;2)))
-'
+' Match.DataBeg =WENN(ODER(Align!M$10=FALSCH;Align!M22=Align!M$9;Align!M22="");"";WENN(Align!M22="-";3;WENN(BinAnd(FINDEN(Align!M22;CodDegElegir)-1          ;M$9);1;2)))
 ' Match.DataBeg =WENN(ODER(Align!M$10=FALSCH;Align!M22=Align!M$9;Align!M22="");"";WENN(Align!M22="-";3;WENN(BinAnd(INDEX(CodDeg!C;CODE(Align!M22));M$9);1;2)))
 
 Dim deg_code(1 To 255) As Byte
