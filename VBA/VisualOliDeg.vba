@@ -367,6 +367,7 @@ Sub ResetRanges(ByVal maxNt As Long, ByVal NofSeq As Long)
    
 
     Call AdjustColHrow("Align.primer_mark", maxNt, Clear:=True)
+    Call AdjustColHrow("Match.SelectedPosRow", maxNt)
     Excel.Range("ActivPrim").ClearContents
     Call AdjustRowHcol("Match.CountErr", NofSeq)
     
