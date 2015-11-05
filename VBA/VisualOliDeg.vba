@@ -327,6 +327,8 @@ Sub AdjustRange(RangeName As String, ByVal numCols As Long, ByVal numRows As Lon
 End Sub
 
 Sub ExportFASTAfile()
+    Dim clas As String
+    Dim ExportFileNAme As String
     ExportFileNAme = Excel.Application.GetSaveAsFilename(Range("FastaFileNAme"), "FASTA files (*.fasta;*.fas;*seq;*.txt),*.fasta;*.fas;*seq;*.txt, All Files (*.*),*.* ", , "Export current sequences in FASTA format to a file:")
     Dim Ident As String, Class As String, Clas1 As String, Clas2 As String, Clas3 As String, Clas4 As String
     Dim HeadName As Range, rSeqDesc As Range
@@ -336,9 +338,11 @@ Sub ExportFASTAfile()
     Clas3 = HeadName(1, 5)
     Clas4 = HeadName(1, 6)
 
+    Dim FastaFile
     FastaFile = FreeFile
     Open ExportFileNAme For Output As #FastaFile
     Set rSeqDesc = Range("SeqDescriptions")
+    Dim Row As Range
     For Each Row In rSeqDesc.Rows
        Ident = ">" & Row.Cells(1, 1) & " "
        clas = Clas1 & ":" & CStr(Row.Cells(1, 3)) & " "
