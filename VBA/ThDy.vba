@@ -64,10 +64,7 @@ End Sub
 Function PrimerSeq(ByVal PrimerPosition As Long, ByVal PrimerLen As Long) As String
 
     Dim primer As Range
-    Set primer = Range("UsedCons").Columns(PrimerPosition).Resize(, PrimerLen)
-    
-    PrimerPosition = PrimerPosition - Range("SeqStart") + 1
-    
+    Set primer = [Align.UsedCons].Columns(PrimerPosition - Range("SeqStart") + 1).Resize(, PrimerLen)
     
     PrimerSeq = ""
     Dim base As Range
@@ -80,51 +77,42 @@ End Function
 
 Function Tm_min_basic(ByVal PrimerPosition As Long, ByVal PrimerLen As Long) As Double
     
-    Dim GC As Long
-    Dim AT As Long
+    Dim GC As Long, AT As Long
     
-    GC = Range("Match.ColH_first").Cells(12, PrimerPosition - Range("SeqStart") + 1) 'Match.sumATmax
-    AT = PrimerLen - GC
+    AT = [Match.sumATmax].Columns(PrimerPosition - Range("SeqStart") + 1)
+    GC = PrimerLen - AT
        
-    Tm_min_basic = 64.9 + 41 * (AT - 16.4) / PrimerLen
+    Tm_min_basic = 64.9 + 41 * (GC - 16.4) / PrimerLen
+    
 End Function
 
 
-Function Tm_max_basic() As Double
-    Dim cMatchAll As Range
-    Set cMatchAll = Range("Match.ColH_first")
+Function Tm_max_basic() As Double   ' A more primitive implementation than Tm_min_basic()? It is actualiced when the primer change? How?
     
-    Dim PrimerLen As Range
-    Set PrimerLen = Range("PrimerLen")
+    Dim PrimerLen As Long, PrimerPosition As Long
+    PrimerLen = Range("PrimerLen")
+    PrimerPosition = Range("currPrimerPosition")
     
-    Dim currPrimerPosition As Range
-    Set currPrimerPosition = Range("currPrimerPosition")
-    
-    Dim SeqStart As Range
-    Set SeqStart = Range("SeqStart")
+    Dim GC As Long
+    GC = [Match.sumGCmax].Columns(PrimerPosition - Range("SeqStart") + 1)
 
-    Tm_max_basic = 64.9 + 41 * (cMatchAll(13, currPrimerPosition - SeqStart + 1) - 16.4) / PrimerLen
+    Tm_max_basic = 64.9 + 41 * (GC - 16.4) / PrimerLen
+    
 End Function
 
 Function Tm_min_NN() As Double
-    Dim cMatchAll As Range
-    Set cMatchAll = Range("Match.ColH_first")
     
-    Dim RlnPC As Range
-    Set RlnPC = Range("RlnPC")
+    Dim PrimerLen As Long, PrimerPosition As Long
+    PrimerLen = Range("PrimerLen")
+    PrimerPosition = Range("currPrimerPosition")
     
-    Dim Kelv_Salt As Range
-    Set Kelv_Salt = Range("Kelv_Salt")
-    
-    Dim currPrimerPosition As Range
-    Set currPrimerPosition = Range("currPrimerPosition")
-    
-    Dim SeqStart As Long
-    SeqStart = Range("SeqStart")
+    Dim RlnPC As Double, Kelv_Salt As Double
+    RlnPC = Range("RlnPC")
+    Kelv_Salt = Range("Kelv_Salt")
     
     Dim Suma_dHmin As Double, Suma_dSmin As Double
-    Suma_dHmin = cMatchAll(20, currPrimerPosition - SeqStart + 1)
-    Suma_dSmin = cMatchAll(22, currPrimerPosition - SeqStart + 1)
+    Suma_dHmin = [Match.SumadHmin].Columns(PrimerPosition - Range("SeqStart") + 1)
+    Suma_dSmin = [Match.SumadSmin].Columns(PrimerPosition - Range("SeqStart") + 1)
 
     Tm_min_NN = 1000 * (Suma_dHmin - 3.4) / (Suma_dSmin + RlnPC) + Kelv_Salt
     
@@ -132,27 +120,21 @@ End Function
 
 
 Function Tm_max_NN() As Double
-    Dim cMatchAll As Range
-    Set cMatchAll = Range("Match.ColH_first")
     
-    Dim RlnPC As Range
-    Set RlnPC = Range("RlnPC")
+    Dim PrimerLen As Long, PrimerPosition As Long
+    PrimerLen = Range("PrimerLen")
+    PrimerPosition = Range("currPrimerPosition")
     
-    Dim Kelv_Salt As Range
-    Set Kelv_Salt = Range("Kelv_Salt")
+    Dim RlnPC As Double, Kelv_Salt As Double
+    RlnPC = Range("RlnPC")
+    Kelv_Salt = Range("Kelv_Salt")
     
-    Dim currPrimerPosition As Range
-    Set currPrimerPosition = Range("currPrimerPosition")
-    
-    Dim SeqStart As Long
-    SeqStart = Range("SeqStart")
-    
-    Dim Suma_dHmax As Double, Suma_dSmax As Double
-    'R21C=Suma dHmax ; R23C=Suma dSmax
-    Suma_dHmax = cMatchAll(21, currPrimerPosition - SeqStart + 1)
-    Suma_dSmax = cMatchAll(23, currPrimerPosition - SeqStart + 1)
+    Dim Suma_dHmax As Double, Suma_dSmax As Double    'R21C=Suma dHmax ; R23C=Suma dSmax
+    Suma_dHmax = [Match.SumadHmax].Columns(PrimerPosition - Range("SeqStart") + 1)
+    Suma_dSmax = [Match.SumadSmax].Columns(PrimerPosition - Range("SeqStart") + 1)
 
     Tm_max_NN = 1000 * (Suma_dHmax - 3.4) / (Suma_dSmax + RlnPC) + Kelv_Salt
+    
 End Function
 
 
