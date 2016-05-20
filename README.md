@@ -12,7 +12,7 @@ and are exported or imported from the workbook as needed. This can lead to incon
 best to simply donwload the workbook from the Release tab.
 
 Problems? Suggestions?		Open an "Issue" at https://github.com/qPCR4vir/VisualOliDeg/issues/new
-		or directly write to the author. 
+		or directly write to the author. For more information [visit our wiki](https://github.com/qPCR4vir/VisualOliDeg/wiki). 
 
 
 If you use it, please cite:
