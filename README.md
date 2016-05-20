@@ -1,5 +1,5 @@
-# VisualOliDeg
-VisualOligoDeg: design of candidate primers and probes for PCR and microarray by visual selection from aligned DNA sequences.
+# Visual OligoDeg
+Visual OligoDeg: design of candidate primers and probes for PCR and microarray by visual selection from aligned DNA sequences.
 
 The workbook VisualOligoDeg facilitates visualization and selection of oligonucleotides hybridizing to all the sequences in a multi-alignment, or to most of the sequences of a given group. 
 It is used for the design of PCR and low-density microarrays.
