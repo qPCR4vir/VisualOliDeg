@@ -11,6 +11,10 @@ for source code are not available. In this repository the VBA code is saved as t
 and are exported or imported from the workbook as needed. This can lead to inconsistencies - that is why it is 
 best to simply donwload the workbook from the Release tab.
 
+Problems? Suggestions?		Open an "Issue" at https://github.com/qPCR4vir/VisualOliDeg/issues/new
+		or directly write to the author. 
+
+
 If you use it, please cite:
 Ariel Vina-Rodriguez, Konrad Sachse, Ute Ziegler, Serafeim C. Chaintoutis, Markus Keller, Martin Eiden and Martin H. Groschup. 2016. 
 "Detection, quantification and identification of flaviviruses by real time RT-PCR and DNA microarray developed with VisualOligoDeg". 
