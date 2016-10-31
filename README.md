@@ -1,10 +1,11 @@
+## Please donwload the last version from the Release tab https://github.com/qPCR4vir/VisualOliDeg/releases
+
+
 # Visual OligoDeg
 Visual OligoDeg: design of candidate primers and probes for PCR and microarray by visual selection from aligned DNA sequences.
 
 The workbook VisualOligoDeg facilitates visualization and selection of oligonucleotides hybridizing to all the sequences in a multi-alignment, or to most of the sequences of a given group. 
 It is used for the design of PCR and low-density microarrays.
-
-Please donwload the last version from the Release tab https://github.com/qPCR4vir/VisualOliDeg/releases
 
 Excel workbooks are treated as binary files by git (and GitHub) and thus most of the versioning possibilities 
 for source code are not available. In this repository the VBA code is saved as text to access these posibilities 
