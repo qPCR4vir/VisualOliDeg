@@ -1,4 +1,4 @@
-## Please donwload the last version from the Release tab https://github.com/qPCR4vir/VisualOliDeg/releases
+## Please donwload the latest version from the Release tab https://github.com/qPCR4vir/VisualOliDeg/releases
 
 
 # Visual OligoDeg
