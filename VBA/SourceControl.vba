@@ -1,6 +1,11 @@
 Attribute VB_Name = "SourceControl"
 '   http://stackoverflow.com/questions/131605/best-way-to-do-version-control-for-ms-excel
 '   http://www.pretentiousname.com/excel_extractvba/
+' Function VersionNum() As String
+'     VersionNum = "v1.06"
+     ' Introducing version number in Code to facilitate commits comments in git/GitHub. 2016-12-06.
+' End Function
+
 
 Sub CommitToLaptoop()
     CommitVBA ("C:\Prog\VisualOliDeg\VBA\")
@@ -41,8 +46,12 @@ Sub RevertVBA()
     For i% = 1 To .VBComponents.Count
         ModuleName = .VBComponents(i%).CodeModule.name
         .VBComponents.Remove .VBComponents(ModuleName)
-        .VBComponents.Import "C:\Prog\VBA\" & ModuleName & ".vba"
+        .VBComponents.Import "C:\Prog\VisualOliDeg\VBA\" & ModuleName & ".vba"
     Next i
   End With
 
 End Sub
+
+
+
+

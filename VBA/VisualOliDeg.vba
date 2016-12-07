@@ -397,7 +397,7 @@ Function BinAnd(a, b)
 Attribute BinAnd.VB_ProcData.VB_Invoke_Func = " \n14"
 '
 ' BinAnd Makro
-' to be replaced with BITAND(a,b) directl yon the sheet. Only for 2013 ??
+' to be replaced with BITAND(a,b) directly on the sheet. Only for 2013 ??
 ' https://support.office.com/en-us/article/BITAND-function-8A2BE3D7-91C3-4B48-9517-64548008563A
 '
 BinAnd = a And b
