@@ -12,6 +12,8 @@ Attribute VB_Name = "SourceControl"
 ' Function VersionNum() As String
 '     VersionNum = "v1.06"
      ' Introducing version number in Code to facilitate commits comments in git/GitHub. 2016-12-06.
+'     VersionNum = "v1.06.01"
+     ' FIX:  revert VBA code from .vba files to Excel. 2016-12-08.
 ' End Function
 
 
@@ -50,20 +52,29 @@ End Sub
 
 Sub RevertVBA()
   
-  Dim Line As String
+  Dim Line As String, fname As String, bas As Integer, ln As Integer
+  
+  
 
   For Each VBComp In ThisWorkbook.VBProject.VBComponents
      With VBComp.CodeModule
-        On Error GoTo Skip
-           Open "C:\Prog\VisualOliDeg\VBA\" & .name & ".vba" For Input As #VBA
+           fname = "C:\Prog\VisualOliDeg\VBA\" & .name & ".vba"
+           bas = FreeFile
+           Debug.Print fname & " bas="; bas
+        On Error Resume Next
+           Open fname For Input As #bas
+        If Err.Number = 0 Then
+           Debug.Print fname & " bas="; bas
            .DeleteLines 1, .CountOfLines
-           Do While Not EOF(VBA)
-              Line Input #VBA, Line
-              .InsertLines Line
+           Do While Not EOF(bas)
+              Line Input #bas, Line
+              ln = ln + 1
+              If ln > 9 Then .InsertLines ln, Line
            Loop
-           Close #VBA
-Skip:
-
+           Close #bas
+        Else
+Skip:      Err.Clear
+        End If
      End With
   Next VBComp
 

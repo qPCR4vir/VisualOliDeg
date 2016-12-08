@@ -224,7 +224,7 @@ Sub AddSeqFromFASTAfile()
     Range("NoSeq") = NofSeq
     Range("NoNt") = maxNt
    
-    
+    ' this is old
     Call AdjustColHrow("Align.primer_mark", maxNt, Clear:=True)
     Excel.Range("ActivPrim").ClearContents
     Call AdjustRowHcol("Match.CountErr", NofSeq)
