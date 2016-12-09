@@ -136,5 +136,3 @@ Function Tm_max_NN() As Double
     Tm_max_NN = 1000 * (Suma_dHmax - 3.4) / (Suma_dSmax + RlnPC) + Kelv_Salt
     
 End Function
-
-

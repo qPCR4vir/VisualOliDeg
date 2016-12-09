@@ -403,4 +403,3 @@ Attribute BinAnd.VB_ProcData.VB_Invoke_Func = " \n14"
 BinAnd = a And b
 '
 End Function
-

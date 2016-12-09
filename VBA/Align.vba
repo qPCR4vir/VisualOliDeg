@@ -32,6 +32,3 @@ Private Sub Worst_Click()
     Sheets("Align").Columns("J:J").PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
     Range("OnlyWorst") = True
 End Sub
-
-
-
