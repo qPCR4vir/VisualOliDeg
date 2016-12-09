@@ -51,30 +51,42 @@ End Sub
 
 
 Sub RevertVBA()
-  
-  Dim Line As String, fname As String, bas As Integer, ln As Integer
-  
-  
 
   For Each VBComp In ThisWorkbook.VBProject.VBComponents
-     With VBComp.CodeModule
+      With VBComp.CodeModule
+           Dim fname As String, bas As Integer, status As String
            fname = "C:\Prog\VisualOliDeg\VBA\" & .name & ".vba"
            bas = FreeFile
-           Debug.Print fname & " bas="; bas
+        
         On Error Resume Next
            Open fname For Input As #bas
+           
         If Err.Number = 0 Then
-           Debug.Print fname & " bas="; bas
            .DeleteLines 1, .CountOfLines
+           Dim Line As String, ln As Integer, header As Integer, code_type As String
+           ln = 0
            Do While Not EOF(bas)
               Line Input #bas, Line
               ln = ln + 1
-              If ln > 9 Then .InsertLines ln, Line
+              If ln = 1 Then
+                If InStr(Line, "VERSION") = 1 Then
+                    code_type = "sheet"
+                    header = 9
+                Else
+                    code_type = "module"
+                    header = 1
+                End If
+              End If
+              If ln > header Then .InsertLines ln, Line
            Loop
            Close #bas
+           status = "code in " & code_type & " imported"
         Else
 Skip:      Err.Clear
+           status = "skiped"
         End If
+        
+           Debug.Print fname & " bas="; bas; " - "; status
      End With
   Next VBComp
 
