@@ -10,9 +10,9 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 Attribute VB_TemplateDerived = False
 Attribute VB_Customizable = True
-Attribute VB_Control = "toList, 5, 0, MSForms, CommandButton"
+Attribute VB_Control = "Clear, 458, 0, MSForms, CommandButton"
 Attribute VB_Control = "Worst, 456, 1, MSForms, CommandButton"
-Attribute VB_Control = "Clear, 458, 2, MSForms, CommandButton"
+Attribute VB_Control = "toList, 5, 2, MSForms, CommandButton"
 Private Sub Clear_Click()
     Sheets("Align").Columns("J:J").ClearContents
     Range("OnlyWorst") = False

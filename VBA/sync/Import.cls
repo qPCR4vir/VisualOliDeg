@@ -10,10 +10,10 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 Attribute VB_TemplateDerived = False
 Attribute VB_Customizable = True
-Attribute VB_Control = "cbt_ExportSeq, 6, 0, MSForms, CommandButton"
-Attribute VB_Control = "Reset, 5, 1, MSForms, CommandButton"
-Attribute VB_Control = "cbt_AddSeq, 4, 2, MSForms, CommandButton"
-Attribute VB_Control = "cbt_Set_FASTAfile, 3, 3, MSForms, CommandButton"
+Attribute VB_Control = "cbt_Set_FASTAfile, 3, 0, MSForms, CommandButton"
+Attribute VB_Control = "cbt_AddSeq, 4, 1, MSForms, CommandButton"
+Attribute VB_Control = "Reset, 5, 2, MSForms, CommandButton"
+Attribute VB_Control = "cbt_ExportSeq, 6, 3, MSForms, CommandButton"
 Private Sub cbt_ExportSeq_Click()
     Call VisualOliDeg.ExportFASTAfile
 End Sub

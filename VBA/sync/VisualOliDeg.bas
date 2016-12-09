@@ -221,16 +221,8 @@ Sub AddSeqFromFASTAfile()
     End If
                 
     
-    Range("NoSeq") = NofSeq
-    Range("NoNt") = maxNt
-   
-    ' this is old
-    Call AdjustColHrow("Align.primer_mark", maxNt, Clear:=True)
-    Excel.Range("ActivPrim").ClearContents
-    Call AdjustRowHcol("Match.CountErr", NofSeq)
     
-    Call AdjustRange("Align.Data", maxNt, NofSeq)
-    Call AdjustRange("Match.Data", maxNt, NofSeq)
+ Call ResetRanges(maxNt, NofSeq)
 
    
  If rSeqDesc.Rows.Count > NofSeq Then
@@ -258,7 +250,7 @@ Sub AdjustRowHcol(ColName As String, ByVal numR As Long, Optional formula, Optio
    If Clear <> False Then
         .Rows(1).ClearContents
    Else
-   If Not IsMissing(formula) Then 'If formula <> "none" Then '
+     If Not IsMissing(formula) Then
         .Rows(1).formula = formula
      End If
    End If
@@ -286,7 +278,7 @@ End Sub
 
 
 
-Sub AdjustRange(RangeName As String, ByVal numCols As Long, ByVal numRows As Long)    ' AdjustRange("Align.ColsAll", maxNt, NofSeq)
+Sub AdjustRange(RangeName As String, ByVal numCols As Long, ByVal numRows As Long, Optional newformula)    ' AdjustRange("Align.ColsAll", maxNt, NofSeq)
 
     If numRows <= 0 Then numRows = 1  'Para que siempre quede al menos la primera Row para poderla copiar
     If numCols <= 0 Then numCols = 1  'Para que siempre quede al menos la primera Row para poderla copiar
@@ -302,10 +294,21 @@ Sub AdjustRange(RangeName As String, ByVal numCols As Long, ByVal numRows As Lon
  End If
  
  Set Data = Data.Resize(numRows, numCols)
- Data(1, 1).Copy
- Data.PasteSpecial (xlPasteAll)
- Data.ColumnWidth = Data(1, 1).ColumnWidth
- Data.RowHeight = Data(1, 1).RowHeight
+ 
+ 'with Data(1, 1)
+ 
+    'If Not IsMissing(newformula) Then
+     '  Data(1, 1).formula = newformula
+    'End If
+       
+     'Data.FormulaR1C1 = "=1"
+     
+     
+    Data(1, 1).Copy
+    Data.PasteSpecial (xlPasteAll)
+    Data.ColumnWidth = Data(1, 1).ColumnWidth
+    Data.RowHeight = Data(1, 1).RowHeight
+    
  
  Dim ColH As Range
  Dim RowH As Range
@@ -324,6 +327,8 @@ Sub AdjustRange(RangeName As String, ByVal numCols As Long, ByVal numRows As Lon
 End Sub
 
 Sub ExportFASTAfile()
+    Dim clas As String
+    Dim ExportFileNAme As String
     ExportFileNAme = Excel.Application.GetSaveAsFilename(Range("FastaFileNAme"), "FASTA files (*.fasta;*.fas;*seq;*.txt),*.fasta;*.fas;*seq;*.txt, All Files (*.*),*.* ", , "Export current sequences in FASTA format to a file:")
     Dim Ident As String, Class As String, Clas1 As String, Clas2 As String, Clas3 As String, Clas4 As String
     Dim HeadName As Range, rSeqDesc As Range
@@ -333,9 +338,11 @@ Sub ExportFASTAfile()
     Clas3 = HeadName(1, 5)
     Clas4 = HeadName(1, 6)
 
+    Dim FastaFile
     FastaFile = FreeFile
     Open ExportFileNAme For Output As #FastaFile
     Set rSeqDesc = Range("SeqDescriptions")
+    Dim Row As Range
     For Each Row In rSeqDesc.Rows
        Ident = ">" & Row.Cells(1, 1) & " "
        clas = Clas1 & ":" & CStr(Row.Cells(1, 3)) & " "
@@ -357,13 +364,41 @@ Sub ResetAll_Click()
 
 End Sub
 
+Sub ResetRanges(ByVal maxNt As Long, ByVal NofSeq As Long)
 
+    Range("NoSeq") = NofSeq
+    Range("NoNt") = maxNt
+   
+
+    Call AdjustColHrow("Align.primer_mark", maxNt, Clear:=True)
+    Call AdjustColHrow("Match.SelectedPosRow", maxNt)
+    Excel.Range("ActivPrim").ClearContents
+    Call AdjustRowHcol("Match.CountErr", NofSeq)
+    
+    
+    'Align.Data(1,1) = WENN(selected;TEIL(seq;pos;1);"")
+    'Align.Data(1,1) = IF(selected;MID(seq;pos;1);"")
+    
+    Call AdjustRange("Align.Data", maxNt, NofSeq) ', "=IF(selected;MID(seq;pos;1);"""")")
+    
+    
+    ' Match.DataBeg =WENN(ODER(Align!M$10=FALSCH;Align!M22=Align!M$9;Align!M22="");"";WENN(Align!M22="-";3;WENN(BinAnd(FINDEN(Align!M22;CodDegElegir)-1          ;M$9);1;2)))
+    ' Match.DataBeg =WENN(ODER(Align!M$10=FALSCH;Align!M22=Align!M$9;Align!M22="");"";WENN(Align!M22="-";3;WENN(BinAnd(INDEX(CodDeg!C;CODE(Align!M22));M$9);1;2)))
+    
+    ' Match.DataBeg =IF(OR(Align!M$10=FALSE;Align!M22=Align!M$9;Align!M22="");"";IF(Align!M22="-";3;IF(BinAnd(FIND(Align!M22;CodDegElegir)-1;M$9);1;2)))
+    ' Match.DataBeg =IF(OR(Align!M$10=FALSE;Align!M22=Align!M$9;Align!M22="");"";IF(Align!M22="-";3;IF(BinAnd(INDEX(CodDeg!C;CODE(Align!M22));M$9);1;2)))
+    
+    Call AdjustRange("Match.Data", maxNt, NofSeq)
+
+End Sub
 
 
 Function BinAnd(a, b)
 Attribute BinAnd.VB_ProcData.VB_Invoke_Func = " \n14"
 '
 ' BinAnd Makro
+' to be replaced with BITAND(a,b) directly on the sheet. Only for 2013 ??
+' https://support.office.com/en-us/article/BITAND-function-8A2BE3D7-91C3-4B48-9517-64548008563A
 '
 BinAnd = a And b
 '
