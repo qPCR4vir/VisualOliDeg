@@ -1,6 +1,6 @@
 ## Please donwload the latest version from the Release tab https://github.com/qPCR4vir/VisualOliDeg/releases
 
-
+Read [our Wiki](https://github.com/qPCR4vir/VisualOliDeg/wiki).
 # Visual OligoDeg
 Visual OligoDeg: design of candidate primers and probes for PCR and microarray by visual selection from aligned DNA sequences.
 
@@ -17,6 +17,5 @@ Problems? Suggestions?		Open an "Issue" at https://github.com/qPCR4vir/VisualOli
 
 
 If you use it, please cite:
-Ariel Vina-Rodriguez, Konrad Sachse, Ute Ziegler, Serafeim C. Chaintoutis, Markus Keller, Martin Eiden and Martin H. Groschup. 2016. 
-"Detection, quantification and identification of flaviviruses by real time RT-PCR and DNA microarray developed with VisualOligoDeg". 
-In preparation.
+Ariel Vina-Rodriguez, Martin Eiden and Martin H. Groschup. 2017. "**_VisualOligoDeg_: visual selection of PCR and microarray primers and probes from aligned sequences.**". In press. 
+
