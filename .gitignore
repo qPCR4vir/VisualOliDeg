@@ -1,1 +1,4 @@
 *.xls*
+cmake-build*/
+.idea/
+

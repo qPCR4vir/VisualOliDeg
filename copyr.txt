@@ -1,9 +1,0 @@
-Copyright (C) 2009-2016, Ariel Vina-Rodriguez ( arielvina@yahoo.es )
-
-This project is part of my PhD Thesis, at INNT-FLI, supervised by Dr. Martin Eiden and Prof. Martin Groschup.
- 
-Author Ariel Vina-Rodriguez (qPCR4vir)
-2012-2016
-
-If you use it, please cite:
-Ariel Vina-Rodriguez,Martin Eiden and Martin H. Groschup. 2016. "VisualOligoDeg - a tool for visual selection of primers and probes". In press.
